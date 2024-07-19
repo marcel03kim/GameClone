@@ -5,6 +5,7 @@ using UnityEngine;
 public class GuestManager : MonoBehaviour
 {
     public GameObject[] guestPrefabList; // 게스트 프리팹 리스트
+    public GameObject[] foodPrefabList; // 음식 프리팹 리스트
     public Transform guestSpawnPos;
     public float speed = 1.0f;
     public float spawnInterval = 3.0f;
@@ -33,5 +34,23 @@ public class GuestManager : MonoBehaviour
         GuestMove guestMove = spawnedGuest.GetComponent<GuestMove>();
         guestMove.targetTag = "Table";
         guestMove.speed = speed;
+        guestMove.guestManager = this; // GuestManager 참조 설정
+    }
+
+    public void OrderFood(GuestMove guest)
+    {
+        // foodPrefabList에서 무작위 프리팹 선택
+        int randomIndex = Random.Range(0, foodPrefabList.Length);
+        GameObject selectedFoodPrefab = foodPrefabList[randomIndex];
+
+        // 현재 위치에서 (0.7, 0.7)만큼 이동한 위치에 프리팹 생성
+        Vector2 foodPosition = new Vector2(guest.transform.position.x + 0.7f, guest.transform.position.y + 0.7f);
+        GameObject orderedFood = Instantiate(selectedFoodPrefab, foodPosition, Quaternion.identity);
+
+        // 생성된 프리팹을 자식으로 설정
+        orderedFood.transform.SetParent(guest.transform);
+
+        // GuestMove 스크립트에 생성된 음식 프리팹의 참조 설정
+        guest.orderedFood = orderedFood;
     }
 }
