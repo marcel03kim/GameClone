@@ -21,6 +21,9 @@ public class GuestMove : MonoBehaviour
         Sitting,
         Ordering,
         hasOrder,
+        eating,
+        drinking,
+
         Waiting
     }
 

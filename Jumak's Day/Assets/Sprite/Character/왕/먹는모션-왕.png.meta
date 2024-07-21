@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -108,7 +108,70 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: "\uBA39\uB294\uBAA8\uC158-\uC655_0"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 904
+        height: 906
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5d2727e2ee90036498d9393e8ebd27cf
+      internalID: -233080934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\uBA39\uB294\uBAA8\uC158-\uC655_1"
+      rect:
+        serializedVersion: 2
+        x: 904
+        y: 0
+        width: 904
+        height: 906
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 91232ea3dedaf1341bcd2df3fa42ffbb
+      internalID: 512207178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\uBA39\uB294\uBAA8\uC158-\uC655_2"
+      rect:
+        serializedVersion: 2
+        x: 1808
+        y: 0
+        width: 904
+        height: 906
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 921e63c1cb1bea643bfba3639de8d595
+      internalID: 374119223
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -119,7 +182,10 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "\uBA39\uB294\uBAA8\uC158-\uC655_0": -233080934
+      "\uBA39\uB294\uBAA8\uC158-\uC655_1": 512207178
+      "\uBA39\uB294\uBAA8\uC158-\uC655_2": 374119223
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

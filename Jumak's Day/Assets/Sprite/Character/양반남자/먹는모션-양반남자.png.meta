@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -108,7 +108,70 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: "\uBA39\uB294\uBAA8\uC158-\uC591\uBC18\uB0A8\uC790_0"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 904
+        height: 906
+      alignment: 9
+      pivot: {x: 0.4798997, y: 0.4589309}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 49416cf9b21803445ad0bd8c0ba66417
+      internalID: -678776898
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\uBA39\uB294\uBAA8\uC158-\uC591\uBC18\uB0A8\uC790_1"
+      rect:
+        serializedVersion: 2
+        x: 904
+        y: 0
+        width: 904
+        height: 906
+      alignment: 9
+      pivot: {x: 0.4786736, y: 0.45744115}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 587f4d0a7d5e14f418b74782eb012d61
+      internalID: -145300563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\uBA39\uB294\uBAA8\uC158-\uC591\uBC18\uB0A8\uC790_2"
+      rect:
+        serializedVersion: 2
+        x: 1810
+        y: 0
+        width: 904
+        height: 906
+      alignment: 9
+      pivot: {x: 0.4733422, y: 0.45744115}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 599c847295d73284583d7808bf596d9e
+      internalID: -1894539982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -119,7 +182,10 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "\uBA39\uB294\uBAA8\uC158-\uC591\uBC18\uB0A8\uC790_0": -678776898
+      "\uBA39\uB294\uBAA8\uC158-\uC591\uBC18\uB0A8\uC790_1": -145300563
+      "\uBA39\uB294\uBAA8\uC158-\uC591\uBC18\uB0A8\uC790_2": -1894539982
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
