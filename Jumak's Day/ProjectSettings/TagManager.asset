@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Table
+  - food
+  - alc
+  - Exit
   layers:
   - Default
   - TransparentFX

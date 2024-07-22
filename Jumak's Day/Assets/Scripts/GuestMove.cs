@@ -7,10 +7,12 @@ public class GuestMove : MonoBehaviour
     public string targetTag;
     public float speed;
     public Animator anim;
-    public Vector2 waitingPosition = new Vector2(-7, -3.5f);
+    public Vector2 waitingPosition = new Vector2(-6, -3.5f);
     public float checkInterval = 1f;
-    public GameObject orderedFood; // 주문한 음식 프리팹의 참조 추가
-    public GuestManager guestManager; // GuestManager 참조 추가
+    public GameObject orderedFood;
+    public GuestManager guestManager;
+    public string exitTag = "Exit";  // Exit 태그를 설정합니다.
+    public bool hasOrder = false;  // hasOrder 상태를 불리언 변수로 설정
 
     private Transform target;
     private Table targetTable;
@@ -20,10 +22,10 @@ public class GuestMove : MonoBehaviour
         Walking,
         Sitting,
         Ordering,
-        hasOrder,
         eating,
         drinking,
-
+        idle,
+        standing,
         Waiting
     }
 
@@ -32,11 +34,9 @@ public class GuestMove : MonoBehaviour
     void Start()
     {
         anim = GetComponent<Animator>();
-        anim.SetInteger("idle", 0);
-        currentState = State.Walking; // 초기 상태를 Walking으로 설정
+        currentState = State.idle;
         FindNewTarget();
     }
-
 
     void Update()
     {
@@ -46,24 +46,49 @@ public class GuestMove : MonoBehaviour
                 if (target != null)
                 {
                     transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
-                    anim.SetInteger("walk", 1);
+                    anim.SetInteger("anim", 1);
                 }
                 break;
             case State.Sitting:
-                // 손님이 자리에 앉아있을 때의 동작
+                anim.SetInteger("anim", 2);
+                StartCoroutine(WaitForAnimationToEnd(2, 3, State.Ordering));
                 break;
-            case State.hasOrder:
-                // 손님이 자리에 앉아있을 때의 동작
+            case State.idle:
+                anim.SetInteger("anim", 0);
+                break;
+            case State.drinking:
+                anim.SetInteger("anim", 5);
+                break;
+            case State.eating:
+                anim.SetInteger("anim", 4);
+                break;
+            case State.standing:
+                anim.SetInteger("anim", 6);
+                StartCoroutine(WaitForAnimationToEnd(6, 1, State.Walking));
                 break;
             case State.Ordering:
-                if (orderedFood == null)
+                if (!hasOrder)  // 주문이 아직 처리되지 않은 경우에만
                 {
-                    guestManager.OrderFood(this);
+                    anim.SetInteger("anim", 3);
+                    if (guestManager != null)
+                    {
+                        guestManager.OrderFood(this);
+                        hasOrder = true;  // 주문 처리 완료 표시
+                    }
+                    else
+                    {
+                        Debug.LogError("guestManager is not assigned!");
+                    }
                 }
                 break;
             case State.Waiting:
-                anim.SetInteger("idle", 0);
+                anim.SetInteger("anim", 0);
                 break;
+        }
+
+        if (hasOrder && orderedFood != null && orderedFood.transform.parent == transform)
+        {
+            StartCoroutine(ConsumeOrderedFood());
         }
     }
 
@@ -79,10 +104,9 @@ public class GuestMove : MonoBehaviour
                 table.isEmpty = false;
 
                 transform.SetParent(collision.transform);
-                anim.SetInteger("sit", 2);
+                anim.SetInteger("anim", 2);
 
                 currentState = State.Sitting;
-                StartCoroutine(WaitForAnimationToEnd("isSit", State.Ordering));
             }
             else
             {
@@ -92,22 +116,36 @@ public class GuestMove : MonoBehaviour
 
         if (currentState == State.Ordering && collision.gameObject.tag == "주모")
         {
-            Destroy(orderedFood); // 주문한 음식 프리팹을 삭제
-            currentState = State.Sitting; // 주문 상태를 Sitting으로 설정
+            Destroy(orderedFood);
+            hasOrder = true;
+            if (orderedFood.tag == "drink")
+            {
+                currentState = State.drinking;
+                anim.SetInteger("anim", 5);
+            }
+            else if (orderedFood.tag == "food")
+            {
+                currentState = State.eating;
+                anim.SetInteger("anim", 4);
+            }
+            StartCoroutine(ConsumeOrderedFood());
+        }
+
+        if (currentState == State.Walking && collision.gameObject.tag == exitTag)
+        {
+            Destroy(gameObject);
         }
     }
 
-    private IEnumerator WaitForAnimationToEnd(string currentAnimation, State nextState)
+    private IEnumerator ConsumeOrderedFood()
     {
-        AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
-        while (stateInfo.IsName(currentAnimation) && stateInfo.normalizedTime < 1.0f)
+        yield return new WaitForSeconds(3f);
+        if (orderedFood != null && orderedFood.transform.parent == transform)
         {
-            yield return null;
-            stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            Destroy(orderedFood);
+            hasOrder = false;
+            currentState = State.standing;
         }
-
-        anim.SetInteger("order", 3);
-        currentState = nextState;
     }
 
     private void FindNewTarget()
@@ -125,7 +163,6 @@ public class GuestMove : MonoBehaviour
             }
         }
 
-        // 빈 테이블을 찾지 못한 경우, 대기 위치로 이동하여 대기를 시작
         StartCoroutine(WaitForEmptyTable());
     }
 
@@ -134,7 +171,6 @@ public class GuestMove : MonoBehaviour
         currentState = State.Waiting;
         target = null;
 
-        // 현재 대기 중인 GuestMove 오브젝트의 수를 확인하여 위치 조정
         int waitingGuests = GameObject.FindObjectsOfType<GuestMove>().Length;
         Vector2 adjustedWaitingPosition = new Vector2(waitingPosition.x - 0.2f * waitingGuests, waitingPosition.y);
         transform.position = adjustedWaitingPosition;
@@ -154,6 +190,37 @@ public class GuestMove : MonoBehaviour
                     yield break;
                 }
             }
+        }
+    }
+
+    private void FindExit()
+    {
+        GameObject exit = GameObject.FindGameObjectWithTag(exitTag);
+        if (exit != null)
+        {
+            target = exit.transform;
+        }
+        else
+        {
+            Debug.LogError("Exit object not found!");
+        }
+    }
+
+    private IEnumerator WaitForAnimationToEnd(int currentAnimValue, int nextAnimValue, State nextState)
+    {
+        AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        while (anim.GetInteger("anim") == currentAnimValue && stateInfo.normalizedTime < 1.0f)
+        {
+            yield return null;
+            stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        }
+
+        anim.SetInteger("anim", nextAnimValue);
+        currentState = nextState;
+
+        if (nextState == State.Walking && nextAnimValue == 1)
+        {
+            FindExit();
         }
     }
 }
