@@ -169,6 +169,8 @@ MonoBehaviour:
   checkInterval: 1
   orderedFood: {fileID: 0}
   guestManager: {fileID: 0}
+  exitTag: Exit
+  hasOrder: 0
   currentState: 0
 --- !u!95 &690130415041815008
 Animator:

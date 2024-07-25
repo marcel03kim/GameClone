@@ -52,6 +52,7 @@ public class GuestMove : MonoBehaviour
             case State.Sitting:
                 anim.SetInteger("anim", 2);
                 StartCoroutine(WaitForAnimationToEnd(2, 3, State.Ordering));
+                Debug.Log(gameObject.name + 2);
                 break;
             case State.idle:
                 anim.SetInteger("anim", 0);

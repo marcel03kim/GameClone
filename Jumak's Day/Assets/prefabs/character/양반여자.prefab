@@ -108,6 +108,8 @@ MonoBehaviour:
   checkInterval: 1
   orderedFood: {fileID: 0}
   guestManager: {fileID: 0}
+  exitTag: Exit
+  hasOrder: 0
   currentState: 0
 --- !u!95 &6663665200359211920
 Animator:
@@ -176,6 +178,8 @@ MonoBehaviour:
   checkInterval: 1
   orderedFood: {fileID: 0}
   guestManager: {fileID: 0}
+  exitTag: Exit
+  hasOrder: 0
   currentState: 0
 --- !u!70 &5691636192546835770
 CapsuleCollider2D:

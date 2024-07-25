@@ -9,6 +9,7 @@ public class GuestManager : MonoBehaviour
     public Transform guestSpawnPos;
     public float speed = 1.0f;
     public float spawnInterval = 3.0f;
+    public int counta;
 
     void Start()
     {
@@ -17,12 +18,14 @@ public class GuestManager : MonoBehaviour
 
     void SpawnGuest()
     {
-        // 현재 웨이팅하고 있는 GuestMove 컴포넌트를 가진 오브젝트의 수를 확인
-        int waitingGuests = FindObjectsOfType<GuestMove>().Length;
-        if (waitingGuests >= 15)
-        {
-            return; // 웨이팅하고 있는 프리팹이 15개 이상이면 SpawnGuest를 실행하지 않음
-        }
+        if(counta > 1)
+            return;
+        //// 현재 웨이팅하고 있는 GuestMove 컴포넌트를 가진 오브젝트의 수를 확인
+        //int waitingGuests = FindObjectsOfType<GuestMove>().Length;
+        //if (waitingGuests >= 15)
+        //{
+        //    return; // 웨이팅하고 있는 프리팹이 15개 이상이면 SpawnGuest를 실행하지 않음
+        //}
 
         // 무작위로 게스트 프리팹 선택
         int randomIndex = Random.Range(0, guestPrefabList.Length);
@@ -35,6 +38,7 @@ public class GuestManager : MonoBehaviour
         guestMove.targetTag = "Table";
         guestMove.speed = speed;
         guestMove.guestManager = this; // GuestManager 참조 설정
+        counta++;
     }
 
     public void OrderFood(GuestMove guest)
