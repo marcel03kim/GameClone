@@ -1,47 +1,118 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class BookManager : MonoBehaviour
 {
-    public Text nameText;
-    public Text descText;
+    public Text[] nameText;
+    public Text[] descText;
+    public Image[] itemImage;
+    public Sprite noneSprite;
 
     private ItemList itemList;
 
-    // Start is called before the first frame update
     void Start()
     {
         itemList = FindObjectOfType<ItemList>();
 
         if (itemList == null)
         {
-            Debug.LogError("ItemList not found in the scene. Ensure there is an ItemList object.");
+            Debug.LogError("ItemList가 씬에 없습니다. ItemList 오브젝트가 있는지 확인하세요.");
             return;
         }
     }
 
-    // 아이템 인덱스를 받아서 도감 정보를 업데이트하는 메서드
     public void UpdateItemDetails(int index)
     {
         if (itemList == null)
         {
-            Debug.LogError("ItemList is null. Unable to update item details.");
+            Debug.LogError("ItemList가 null입니다. 아이템 세부정보를 업데이트할 수 없습니다.");
             return;
+        }
+
+        // 모든 텍스트와 이미지 초기화
+        foreach (var text in nameText)
+        {
+            if (text.gameObject.activeSelf)
+            {
+                text.text = "";
+            }
+        }
+
+        foreach (var text in descText)
+        {
+            if (text.gameObject.activeSelf)
+            {
+                text.text = "";
+            }
+        }
+
+        foreach (var image in itemImage)
+        {
+            if (image.gameObject.activeSelf)
+            {
+                image.sprite = noneSprite;
+            }
         }
 
         ItemData itemData = itemList.GetItemData(index);
 
-        if (itemData != null)
+        if (index >= 0 && index <= 7 || index >= 100 && index <= 107)
         {
-            nameText.text = itemData.Name;
-            descText.text = itemData.Description;
+            for (int i = 0; i < nameText.Length; i++)
+            {
+                if (nameText[i].gameObject.activeSelf)
+                {
+                    nameText[i].text = itemData.Name;
+                    break;
+                }
+            }
+
+            for (int i = 0; i < descText.Length; i++)
+            {
+                if (descText[i].gameObject.activeSelf)
+                {
+                    descText[i].text = itemData.Description;
+                    break;
+                }
+            }
+
+            for (int i = 0; i < itemImage.Length; i++)
+            {
+                if (itemImage[i].gameObject.activeSelf)
+                {
+                    itemImage[i].sprite = itemData.Icon;
+                    break;
+                }
+            }
         }
-        else
+        else if (index >= 8 && index < 100 || index >= 108)
         {
-            nameText.text = "쉿! 비밀이얌";
-            descText.text = "게임을 플레이하여 열어보세요";
+            for (int i = 0; i < nameText.Length; i++)
+            {
+                if (nameText[i].gameObject.activeSelf)
+                {
+                    nameText[i].text = "쉿! 비밀이얌";
+                    break;
+                }
+            }
+
+            for (int i = 0; i < descText.Length; i++)
+            {
+                if (descText[i].gameObject.activeSelf)
+                {
+                    descText[i].text = "게임을 플레이하여 열어보세요";
+                    break;
+                }
+            }
+
+            for (int i = 0; i < itemImage.Length; i++)
+            {
+                if (itemImage[i].gameObject.activeSelf)
+                {
+                    itemImage[i].sprite = noneSprite;
+                    break;
+                }
+            }
         }
     }
 }

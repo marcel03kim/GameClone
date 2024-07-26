@@ -13,7 +13,10 @@ public class UIManager : MonoBehaviour
     public GameObject menu;
     public GameObject setting;
     public GameObject food;
-    public GameObject mission;
+    public GameObject FoodDic;
+    public GameObject GuestDic;
+    public GameObject GDic;
+    public GameObject FDic;
     public GameObject upgrade;
 
     public Button[] buttons;
@@ -33,7 +36,53 @@ public class UIManager : MonoBehaviour
         // 모든 버튼의 스프라이트 초기화
         SetAllButtonsToPurchaseSprite();
     }
+    public void SetActivePanel(string panelName)
+    {
+        // 모든 패널을 비활성화
+        food.SetActive(false);
+        FoodDic.SetActive(false);
+        GuestDic.SetActive(false);
+        GDic.SetActive(false);
+        FDic.SetActive(false);
+        upgrade.SetActive(false);
+        menu.SetActive(false);
+        setting.SetActive(false);
 
+        // 전달받은 패널 이름에 따라 해당 패널을 활성화
+        switch (panelName)
+        {
+            case "Menu":
+                menu.SetActive(true);
+                break;
+            case "Food":
+                food.SetActive(true);
+                break;
+            case "FD":
+                GuestDic.SetActive(true);
+                FoodDic.SetActive(true);
+                break;
+            case "GD":
+                GuestDic.SetActive(true);
+                break;
+            case "GDic":
+                GDic.SetActive(true);
+                GuestDic.SetActive(true);
+                break;
+            case "FDic":
+                FDic.SetActive(true);
+                FoodDic.SetActive(true);
+                break;
+            case "Upgrade":
+                upgrade.SetActive(true);
+                break;
+            case "Setting":
+                setting.SetActive(true);
+                break;
+            default:
+                Debug.LogError("Invalid panel name.");
+                break;
+        }
+    }
     private void SetAllButtonsToPurchaseSprite()
     {
         foreach (Button button in buttons)
@@ -106,4 +155,6 @@ public class UIManager : MonoBehaviour
             Debug.LogError("Button index is out of range.");
         }
     }
+
+   
 }
