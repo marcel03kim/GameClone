@@ -11,11 +11,12 @@ public class GuestMove : MonoBehaviour
     public float checkInterval = 1f;
     public GameObject orderedFood;
     public GuestManager guestManager;
-    public string exitTag = "Exit";  // Exit 태그를 설정합니다.
-    public bool hasOrder = false;  // hasOrder 상태를 불리언 변수로 설정
+    public string exitTag = "Exit";
+    public bool hasOrder = false;
 
     private Transform target;
     private Table targetTable;
+    public float crossFadeDuration = 0.2f; // 크로스페이드 지속 시간
 
     public enum State
     {
@@ -46,35 +47,34 @@ public class GuestMove : MonoBehaviour
                 if (target != null)
                 {
                     transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
-                    anim.SetInteger("anim", 1);
+                    anim.CrossFade("WalkingAnimation", crossFadeDuration);
                 }
                 break;
             case State.Sitting:
-                anim.SetInteger("anim", 2);
+                anim.CrossFade("SittingAnimation", crossFadeDuration);
                 StartCoroutine(WaitForAnimationToEnd(2, 3, State.Ordering));
-                Debug.Log(gameObject.name + 2);
                 break;
             case State.idle:
-                anim.SetInteger("anim", 0);
+                anim.CrossFade("IdleAnimation", crossFadeDuration);
                 break;
             case State.drinking:
-                anim.SetInteger("anim", 5);
+                anim.CrossFade("DrinkingAnimation", crossFadeDuration);
                 break;
             case State.eating:
-                anim.SetInteger("anim", 4);
+                anim.CrossFade("EatingAnimation", crossFadeDuration);
                 break;
             case State.standing:
-                anim.SetInteger("anim", 6);
+                anim.CrossFade("StandingAnimation", crossFadeDuration);
                 StartCoroutine(WaitForAnimationToEnd(6, 1, State.Walking));
                 break;
             case State.Ordering:
-                if (!hasOrder)  // 주문이 아직 처리되지 않은 경우에만
+                if (!hasOrder)
                 {
-                    anim.SetInteger("anim", 3);
+                    anim.CrossFade("OrderingAnimation", crossFadeDuration);
                     if (guestManager != null)
                     {
                         guestManager.OrderFood(this);
-                        hasOrder = true;  // 주문 처리 완료 표시
+                        hasOrder = true;
                     }
                     else
                     {
@@ -83,7 +83,7 @@ public class GuestMove : MonoBehaviour
                 }
                 break;
             case State.Waiting:
-                anim.SetInteger("anim", 0);
+                anim.CrossFade("WaitingAnimation", crossFadeDuration);
                 break;
         }
 
@@ -105,8 +105,7 @@ public class GuestMove : MonoBehaviour
                 table.isEmpty = false;
 
                 transform.SetParent(collision.transform);
-                anim.SetInteger("anim", 2);
-
+                anim.CrossFade("SittingAnimation", crossFadeDuration);
                 currentState = State.Sitting;
             }
             else
@@ -122,12 +121,12 @@ public class GuestMove : MonoBehaviour
             if (orderedFood.tag == "drink")
             {
                 currentState = State.drinking;
-                anim.SetInteger("anim", 5);
+                anim.CrossFade("DrinkingAnimation", crossFadeDuration);
             }
             else if (orderedFood.tag == "food")
             {
                 currentState = State.eating;
-                anim.SetInteger("anim", 4);
+                anim.CrossFade("EatingAnimation", crossFadeDuration);
             }
             StartCoroutine(ConsumeOrderedFood());
         }
@@ -146,6 +145,8 @@ public class GuestMove : MonoBehaviour
             Destroy(orderedFood);
             hasOrder = false;
             currentState = State.standing;
+            anim.CrossFade("StandingAnimation", crossFadeDuration);
+            // 코인 프리팹을 생성하려면 추가 로직을 여기에 넣을 수 있습니다.
         }
     }
 
@@ -158,70 +159,21 @@ public class GuestMove : MonoBehaviour
             if (table != null && table.isEmpty)
             {
                 target = tableObject.transform;
-                targetTable = table;
-                currentState = State.Walking;
-                return;
+                break;
             }
         }
 
-        StartCoroutine(WaitForEmptyTable());
-    }
-
-    private IEnumerator WaitForEmptyTable()
-    {
-        currentState = State.Waiting;
-        target = null;
-
-        int waitingGuests = GameObject.FindObjectsOfType<GuestMove>().Length;
-        Vector2 adjustedWaitingPosition = new Vector2(waitingPosition.x - 0.2f * waitingGuests, waitingPosition.y);
-        transform.position = adjustedWaitingPosition;
-
-        while (currentState == State.Waiting)
+        if (target == null)
         {
-            yield return new WaitForSeconds(checkInterval);
-            GameObject[] tables = GameObject.FindGameObjectsWithTag(targetTag);
-            foreach (GameObject tableObject in tables)
-            {
-                Table table = tableObject.GetComponent<Table>();
-                if (table != null && table.isEmpty)
-                {
-                    target = tableObject.transform;
-                    targetTable = table;
-                    currentState = State.Walking;
-                    yield break;
-                }
-            }
+            target = new GameObject("RandomTarget").transform;
+            target.position = waitingPosition;
         }
     }
 
-    private void FindExit()
+    private IEnumerator WaitForAnimationToEnd(float waitTime, float fadeTime, State newState)
     {
-        GameObject exit = GameObject.FindGameObjectWithTag(exitTag);
-        if (exit != null)
-        {
-            target = exit.transform;
-        }
-        else
-        {
-            Debug.LogError("Exit object not found!");
-        }
-    }
-
-    private IEnumerator WaitForAnimationToEnd(int currentAnimValue, int nextAnimValue, State nextState)
-    {
-        AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
-        while (anim.GetInteger("anim") == currentAnimValue && stateInfo.normalizedTime < 1.0f)
-        {
-            yield return null;
-            stateInfo = anim.GetCurrentAnimatorStateInfo(0);
-        }
-
-        anim.SetInteger("anim", nextAnimValue);
-        currentState = nextState;
-
-        if (nextState == State.Walking && nextAnimValue == 1)
-        {
-            FindExit();
-        }
+        yield return new WaitForSeconds(waitTime);
+        anim.CrossFade("IdleAnimation", fadeTime);
+        currentState = newState;
     }
 }

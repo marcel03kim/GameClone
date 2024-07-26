@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1543817412789373330}
   - component: {fileID: 7698937730696554732}
+  - component: {fileID: -1453684751537852000}
   m_Layer: 0
   m_Name: Soju
   m_TagString: alc
@@ -84,3 +85,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &-1453684751537852000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7173619485281541987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0bbea91e280ed24288b70b9665a0977, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 0
+  currentState: 0
+  parentTransform: {fileID: 0}

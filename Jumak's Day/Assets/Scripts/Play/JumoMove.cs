@@ -1,12 +1,14 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class JumoMove : MonoBehaviour
 {
     public float speed = 3f;
-
     private Transform target;
+    private Vector3 targetPosition;
+    private bool isMoving = false;
+    private bool canMove = true; // 이동 가능 여부를 나타내는 변수
+    public float crossFadeDuration = 0.2f; // 크로스페이드 지속 시간
 
     public enum State
     {
@@ -16,14 +18,44 @@ public class JumoMove : MonoBehaviour
     }
 
     public State currentState = State.idle;
+    public Animator animator; // 애니메이터 컴포넌트 참조
 
-    void Start()
+    private void Start()
     {
-        StartCoroutine(CheckForOrderingGuests());
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
     }
 
     void Update()
     {
+        // `order` 상태일 때는 이동을 하지 않음
+        if (currentState == State.order)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(0) && canMove)
+        {
+            targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            targetPosition.z = 0;
+            isMoving = true;
+            currentState = State.Moving;
+            UpdateAnimator();
+        }
+
+        if (isMoving)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+            if (Vector2.Distance(transform.position, targetPosition) < 0.1f)
+            {
+                isMoving = false;
+                currentState = State.idle;
+                UpdateAnimator();
+            }
+        }
+
         switch (currentState)
         {
             case State.idle:
@@ -36,6 +68,8 @@ public class JumoMove : MonoBehaviour
                     if (Vector2.Distance(transform.position, target.position) < 0.1f)
                     {
                         currentState = State.order; // 목표에 도달하면 order 상태로 전환
+                        UpdateAnimator();
+                        StartCoroutine(WaitForOrderState());
                     }
                 }
                 break;
@@ -46,43 +80,42 @@ public class JumoMove : MonoBehaviour
         }
     }
 
-    private IEnumerator CheckForOrderingGuests()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        while (true)
+        GuestMove guestMove = collision.GetComponent<GuestMove>();
+        if (guestMove != null && guestMove.currentState == GuestMove.State.Ordering)
         {
-            FindClosestOrderingGuest();
-            yield return new WaitForSeconds(1f); // 1초마다 확인
+            currentState = State.order;
+            canMove = false; // order 상태일 때는 이동할 수 없도록 설정
+            UpdateAnimator(); // 애니메이션 트리거 업데이트
+            guestMove.currentState = GuestMove.State.Ordering;
+            StartCoroutine(WaitForOrderState());
         }
     }
 
-    private void FindClosestOrderingGuest()
+    private IEnumerator WaitForOrderState()
     {
-        GuestMove[] guests = GameObject.FindObjectsOfType<GuestMove>();
-        float closestDistance = Mathf.Infinity;
-        GuestMove closestGuest = null;
+        yield return new WaitForSeconds(3f); // 3초 대기
+        currentState = State.idle;
+        canMove = true; // 이동 가능 상태로 복원
+        UpdateAnimator();
+    }
 
-        foreach (GuestMove guest in guests)
-        {
-            if (guest.hasOrder && guest.currentState == GuestMove.State.Ordering) // hasOrder 상태가 true이고 Ordering 상태인 손님만 고려
-            {
-                float distance = Vector2.Distance(transform.position, guest.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestGuest = guest;
-                }
-            }
-        }
+    private void UpdateAnimator()
+    {
+        if (animator == null) return;
 
-        if (closestGuest != null)
+        switch (currentState)
         {
-            target = closestGuest.transform;
-            currentState = State.Moving; // 가장 가까운 손님이 있으면 Moving 상태로 전환
-        }
-        else
-        {
-            target = null;
-            currentState = State.idle; // 가까운 손님이 없으면 Idle 상태로 유지
+            case State.idle:
+                animator.CrossFade("IdleAnimation", crossFadeDuration);
+                break;
+            case State.Moving:
+                animator.CrossFade("MovingAnimation", crossFadeDuration);
+                break;
+            case State.order:
+                animator.CrossFade("OrderAnimation", crossFadeDuration);
+                break;
         }
     }
 }
