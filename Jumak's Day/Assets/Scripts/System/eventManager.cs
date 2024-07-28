@@ -27,6 +27,8 @@ public class EventManager : MonoBehaviour
 
     private void Awake()
     {
+        EventCanvas.SetActive(false);
+
         if (King != null) King.gameObject.SetActive(false);
         if (Japan != null) Japan.gameObject.SetActive(false);
         if (Yang != null) Yang.gameObject.SetActive(false);
@@ -52,14 +54,10 @@ public class EventManager : MonoBehaviour
             buttons[0].onClick.AddListener(OnButton0Click);
         }
     }
-
-    void Start()
-    {
-        Time.timeScale = 0f;
-    }
-
     public void EventStart(int eventId)
     {
+        Time.timeScale = 0f;
+        EventCanvas.SetActive(true);
         if (King != null) King.gameObject.SetActive(false);
         if (Japan != null) Japan.gameObject.SetActive(false);
         if (Yang != null) Yang.gameObject.SetActive(false);
@@ -110,6 +108,7 @@ public class EventManager : MonoBehaviour
 
             if (textNum > 2)
             {
+                textNum = 0;
                 eventText.text = "왕이 손님을 내쫓으라고 한다 어떻게 할까?";
 
                 buttons[1].gameObject.SetActive(true);
@@ -144,6 +143,7 @@ public class EventManager : MonoBehaviour
 
             if (textNum > 15)
             {
+                textNum = 11;
                 eventText.text = "음식을 공짜로 내놓으라고? 어쩌지?";
 
                 buttons[1].gameObject.SetActive(true);
@@ -186,6 +186,7 @@ public class EventManager : MonoBehaviour
 
             if (textNum > 19)
             {
+                textNum = 16;
                 EventEnd(1000, 500);
             }
         });
@@ -208,6 +209,7 @@ public class EventManager : MonoBehaviour
 
             if (textNum > 10)
             {
+                textNum = 7;
                 EventEnd(-1000, -50);
             }
         });
@@ -230,6 +232,7 @@ public class EventManager : MonoBehaviour
 
             if (textNum > 6)
             {
+                textNum = 3;
                 eventText.text = "다친 제비가 불쌍하다. 어떻게 할까?";
                 buttons[1].gameObject.SetActive(true);
                 buttons[2].gameObject.SetActive(true);
@@ -264,6 +267,7 @@ public class EventManager : MonoBehaviour
 
             if (textNum > 26)
             {
+                textNum = 20;
                 EventEnd(0, 200);
             }
         });

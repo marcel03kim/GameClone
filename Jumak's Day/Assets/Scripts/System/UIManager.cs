@@ -18,6 +18,7 @@ public class UIManager : MonoBehaviour
     public GameObject GDic;
     public GameObject FDic;
     public GameObject upgrade;
+    public GameObject mission;
 
     public Button[] buttons;
     public Sprite purchaseSprite;
@@ -32,7 +33,15 @@ public class UIManager : MonoBehaviour
             int buttonIndex = Array.IndexOf(buttons, button);
             button.onClick.AddListener(() => OnButtonClick(buttonIndex));
         }
-
+        food.SetActive(false);
+        FoodDic.SetActive(false);
+        GuestDic.SetActive(false);
+        GDic.SetActive(false);
+        FDic.SetActive(false);
+        upgrade.SetActive(false);
+        menu.SetActive(false);
+        mission.SetActive(false);
+        setting.SetActive(false);
         // 모든 버튼의 스프라이트 초기화
         SetAllButtonsToPurchaseSprite();
     }
@@ -45,6 +54,7 @@ public class UIManager : MonoBehaviour
         GDic.SetActive(false);
         FDic.SetActive(false);
         upgrade.SetActive(false);
+        mission.SetActive(false);
         menu.SetActive(false);
         setting.SetActive(false);
 
@@ -53,6 +63,7 @@ public class UIManager : MonoBehaviour
         {
             case "Menu":
                 menu.SetActive(true);
+                food.SetActive(true);
                 break;
             case "Food":
                 food.SetActive(true);
@@ -77,6 +88,20 @@ public class UIManager : MonoBehaviour
                 break;
             case "Setting":
                 setting.SetActive(true);
+                break;
+            case "mission":
+                mission.SetActive(true);
+                break;
+            case "Back":
+                food.SetActive(false);
+                FoodDic.SetActive(false);
+                GuestDic.SetActive(false);
+                GDic.SetActive(false);
+                FDic.SetActive(false);
+                upgrade.SetActive(false);
+                mission.SetActive(false);
+                menu.SetActive(false);
+                setting.SetActive(false);
                 break;
             default:
                 Debug.LogError("Invalid panel name.");

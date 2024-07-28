@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GuestMove : MonoBehaviour
 {
-    public float speed = 2.0f;
+    public float speed;
     public Animator anim;
     public Vector2 waitingPosition = new Vector2(-6, -3.5f);
     public float checkInterval = 1f;
@@ -12,9 +12,10 @@ public class GuestMove : MonoBehaviour
     public GuestManager guestManager;
     public GameObject coinPrefab;
 
-    public Transform target;
+    private bool hasOrder;
+    private Transform target;
+    private Transform initialTarget;
     private Rigidbody2D rb;
-    public float crossFadeDuration = 0.2f;
 
     public enum State
     {
@@ -32,45 +33,42 @@ public class GuestMove : MonoBehaviour
     void Start()
     {
         anim = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody2D>();  // Rigidbody2D 컴포넌트 가져오기
-        currentState = State.Move;
+        rb = GetComponent<Rigidbody2D>();
         FindNewTarget();
-        UpdateAnimator();
     }
-
 
     void Update()
     {
         switch (currentState)
         {
-            case State.Move:
-                Move();
-                break;
             case State.Idle:
                 speed = 0;
+                anim.SetInteger("anim", 0);
                 break;
             case State.Sit:
+                anim.SetInteger("anim", 3);
                 break;
             case State.Eat:
-                Eat();
+                StartCoroutine(ConsumeOrderedFood());
                 break;
             case State.Order:
-                Order();
+                if (!hasOrder)
+                {
+                    Order();
+                }
                 break;
             case State.Wait:
                 Wait();
                 break;
             case State.Exit:
-                Exit();
+                StartCoroutine(Exit());
                 break;
         }
 
-        if (orderedFood != null && orderedFood.transform.parent == transform)
+        if (orderedFood != null && orderedFood.GetComponent<Item>().currentState == Item.State.Ate)
         {
-            StartCoroutine(ConsumeOrderedFood());
+            currentState = State.Eat;
         }
-
-        UpdateAnimator();
     }
 
     void FixedUpdate()
@@ -81,33 +79,40 @@ public class GuestMove : MonoBehaviour
         }
     }
 
-
     void Move()
     {
         if (target != null)
         {
-            Vector2 newPosition = target.transform.position - rb.transform.position;
-            transform.Translate(newPosition * Time.fixedDeltaTime);
-            //rb.velocity = newPosition;
-            //Vector2 newPosition = Vector2.MoveTowards(rb.position, target.position, speed * Time.fixedDeltaTime);
-            //rb.MovePosition(newPosition);
+            Vector2 newPosition = Vector2.MoveTowards(rb.position, target.position, speed * Time.fixedDeltaTime);
+            if (target.position.x > rb.position.x)
+            {
+                transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            }
+            else
+            {
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            }
+            rb.MovePosition(newPosition);
+            anim.SetInteger("anim", 1);
 
-            Debug.Log("무브 호출");
+            if (Vector2.Distance(rb.position, target.position) < 0.1f)
+            {
+                if (currentState == State.Move)
+                {
+                    currentState = State.Order;
+                    target = null;
+                }
+            }
         }
     }
-
 
     void Order()
     {
         if (guestManager != null)
         {
             guestManager.OrderFood(this);
-            currentState = State.Sit;
-            Debug.Log("Order called"); // 디버그 로그 추가
-        }
-        else
-        {
-            Debug.LogError("guestManager is not assigned!");
+            anim.SetInteger("anim", 2);
+            hasOrder = true;
         }
     }
 
@@ -121,73 +126,74 @@ public class GuestMove : MonoBehaviour
         }
     }
 
-    void Eat()
-    {
-        StartCoroutine(ConsumeOrderedFood());
-    }
-
-    void Exit()
+    private IEnumerator Exit()
     {
         GameObject exitObject = GameObject.FindGameObjectWithTag("Exit");
         if (exitObject != null)
         {
             target = exitObject.transform;
+            anim.SetInteger("anim", 6);
+
+            yield return new WaitForSeconds(2.5f);
+
             transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+            transform.SetParent(null);
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("OnTriggerEnter2D called with: " + collision.gameObject.tag); // 디버그 로그 추가
-
         if (collision.gameObject.tag == "Table" && currentState == State.Move)
         {
             Table table = collision.gameObject.GetComponent<Table>();
             if (table != null && table.state == Table.TableState.Empty)
             {
-                Debug.Log("Table found and empty"); // 디버그 로그 추가
-
                 transform.position = collision.transform.position;
                 table.state = Table.TableState.Full;
                 transform.SetParent(collision.transform);
                 currentState = State.Order;
             }
-            else
+        }
+        if (collision.gameObject.tag == "Table" && currentState == State.Move)
+        {
+            Table table = collision.gameObject.GetComponent<Table>();
+            if (table != null && table.state == Table.TableState.Full)
             {
-                currentState = State.Wait;
+                FindNewTarget();
             }
         }
 
         if (currentState == State.Order && collision.gameObject.tag == "주모")
         {
-            Debug.Log("주모 found and in Order state"); // 디버그 로그 추가
-
-            Destroy(orderedFood);
-            currentState = State.Eat;
+            currentState = State.Sit;
         }
 
         if (currentState == State.Exit && collision.gameObject.tag == "Exit")
         {
-            Debug.Log("Exit found and in Exit state"); // 디버그 로그 추가
-
             Destroy(gameObject);
         }
-
-        UpdateAnimator();
     }
 
     private IEnumerator ConsumeOrderedFood()
     {
-        yield return new WaitForSeconds(3f);
+        if (orderedFood.gameObject.tag == "food")
+        {
+            anim.SetInteger("anim", 4);
+        }
+        if (orderedFood.gameObject.tag == "Alc")
+        {
+            anim.SetInteger("anim", 3);
+        }
+
+        yield return new WaitForSeconds(5f);
         if (orderedFood != null && orderedFood.transform.parent == transform)
         {
-            currentState = State.Exit;
-            orderedFood.GetComponent<Item>().price = coinPrefab.GetComponent<Coin>().Cpoint;
-            orderedFood.GetComponent<Item>().Honor = coinPrefab.GetComponent<Coin>().Hpoint;
+            coinPrefab.GetComponent<Coin>().Cpoint = orderedFood.GetComponent<Item>().price;
+            coinPrefab.GetComponent<Coin>().Hpoint = orderedFood.GetComponent<Item>().Honor;
             Instantiate(coinPrefab, transform.position, Quaternion.identity);
             Destroy(orderedFood);
+            currentState = State.Exit;
         }
-        UpdateAnimator();
     }
 
     private void FindNewTarget()
@@ -213,20 +219,13 @@ public class GuestMove : MonoBehaviour
         if (closestTable != null)
         {
             target = closestTable.transform;
+            initialTarget = closestTable.transform;
             currentState = State.Move;
-            Debug.Log("New target found: " + target.position); // 디버그 로그 추가
         }
         else
         {
-            target.position = waitingPosition;
-            currentState = State.Wait;
+            gameObject.transform.position = waitingPosition;
+            currentState = State.Idle;
         }
-
-        UpdateAnimator();
-    }
-
-    private void UpdateAnimator()
-    {
-        anim.SetInteger("State", (int)currentState);
     }
 }

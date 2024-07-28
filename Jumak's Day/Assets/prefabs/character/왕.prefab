@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 3797069476239225460}
   m_Layer: 0
   m_Name: "\uC655"
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -104,8 +104,10 @@ MonoBehaviour:
   id: 3
   price: 0
   Honor: 0
+  cookTime: 0
   currentState: 0
   parentTransform: {fileID: 0}
+  slots: []
 --- !u!70 &2842752119002490534
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -167,7 +169,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
+  m_Constraints: 0
 --- !u!114 &6014490879006122233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,15 +182,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91ebdf417ed328b409bfe457f629617c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetTag: 
-  speed: 2
+  speed: 1.5
   anim: {fileID: 3797069476239225460}
   waitingPosition: {x: -7, y: -3.5}
   checkInterval: 1
   orderedFood: {fileID: 0}
   guestManager: {fileID: 0}
-  exitTag: Exit
-  hasOrder: 0
+  coinPrefab: {fileID: 4539035297596919605, guid: 985c817548ff961459e50d2d5fc1fbe3, type: 3}
   currentState: 0
 --- !u!95 &3797069476239225460
 Animator:

@@ -54,3 +54,6 @@ TagManager:
   - name: ForeGround
     uniqueID: 4010271823
     locked: 0
+  - name: Item
+    uniqueID: 2560157551
+    locked: 0

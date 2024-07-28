@@ -9,8 +9,8 @@ public class Coin : MonoBehaviour
 
     private void OnMouseDown()
     {
-        Destroy(gameObject);
         GameManager.Instance.coin += Cpoint;
         GameManager.Instance.honor += Hpoint;
+        Destroy(gameObject);
     }
 }

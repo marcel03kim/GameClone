@@ -149,7 +149,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
+  m_Constraints: 0
 --- !u!95 &6894365020501880377
 Animator:
   serializedVersion: 5
@@ -185,5 +185,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 3
   crossFadeDuration: 0.2
+  anim: {fileID: 0}
   currentState: 0
   animator: {fileID: 6894365020501880377}

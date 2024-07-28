@@ -4,12 +4,8 @@ using UnityEngine;
 public class JumoMove : MonoBehaviour
 {
     public float speed = 3f;
-    private Transform target;
     private Vector3 targetPosition;
-    private bool isMoving = false;
-    private bool canMove = true; // 이동 가능 여부를 나타내는 변수
-    public float crossFadeDuration = 0.2f; // 크로스페이드 지속 시간
-
+    public Animator anim;
     public enum State
     {
         idle,
@@ -18,104 +14,77 @@ public class JumoMove : MonoBehaviour
     }
 
     public State currentState = State.idle;
-    public Animator animator; // 애니메이터 컴포넌트 참조
 
     private void Start()
     {
-        if (animator == null)
+        if (anim == null)
         {
-            animator = GetComponent<Animator>();
+            anim = GetComponent<Animator>();
         }
     }
 
     void Update()
     {
-        // `order` 상태일 때는 이동을 하지 않음
-        if (currentState == State.order)
+        if (Input.GetMouseButtonDown(0)) 
         {
-            return;
-        }
-
-        if (Input.GetMouseButtonDown(0) && canMove)
-        {
-            targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            targetPosition.z = 0;
-            isMoving = true;
-            currentState = State.Moving;
-            UpdateAnimator();
-        }
-
-        if (isMoving)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
-            if (Vector2.Distance(transform.position, targetPosition) < 0.1f)
+            if (currentState != State.order) 
             {
-                isMoving = false;
-                currentState = State.idle;
-                UpdateAnimator();
+                targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                targetPosition.z = 0;
+                currentState = State.Moving;
             }
         }
 
         switch (currentState)
         {
             case State.idle:
-                // Idle 상태에서는 아무것도 하지 않음
+                anim.SetInteger("anim", 0);
                 break;
             case State.Moving:
-                if (target != null)
-                {
-                    transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
-                    if (Vector2.Distance(transform.position, target.position) < 0.1f)
-                    {
-                        currentState = State.order; // 목표에 도달하면 order 상태로 전환
-                        UpdateAnimator();
-                        StartCoroutine(WaitForOrderState());
-                    }
-                }
+                Move();
                 break;
             case State.order:
-                // order 상태에서는 어떤 동작을 할지 추가
-                // 예: 손님과 상호작용
+                StartCoroutine(Order());
                 break;
+        }
+    }
+
+    void Move()
+    {
+        anim.SetInteger("anim", 1);
+
+        if (Vector3.Distance(transform.position, targetPosition) > 0.1f) 
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+        }
+        else
+        {
+            currentState = State.idle; 
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        GuestMove guestMove = collision.GetComponent<GuestMove>();
-        if (guestMove != null && guestMove.currentState == GuestMove.State.Order)
+        if (collision.gameObject.tag == "Player")
         {
-            currentState = State.order;
-            canMove = false; // order 상태일 때는 이동할 수 없도록 설정
-            UpdateAnimator(); // 애니메이션 트리거 업데이트
-            guestMove.currentState = GuestMove.State.Sit;
-            StartCoroutine(WaitForOrderState());
+            GuestMove guestMove = collision.gameObject.GetComponent<GuestMove>();
+            if (guestMove != null && guestMove.currentState == GuestMove.State.Order)
+            {
+                guestMove.currentState = GuestMove.State.Sit;
+                currentState = State.order;
+                if (guestMove.orderedFood != null)
+                {
+                    guestMove.orderedFood.GetComponent<Item>().currentState = Item.State.Cooked;
+                }
+            }
         }
     }
 
-    private IEnumerator WaitForOrderState()
+    private IEnumerator Order()
     {
-        yield return new WaitForSeconds(3f); // 3초 대기
+        anim.SetInteger("anim", 2);
+
+        yield return new WaitForSeconds(2.5f);
         currentState = State.idle;
-        canMove = true; // 이동 가능 상태로 복원
-        UpdateAnimator();
-    }
-
-    private void UpdateAnimator()
-    {
-        if (animator == null) return;
-
-        switch (currentState)
-        {
-            case State.idle:
-                animator.CrossFade("IdleAnimation", crossFadeDuration);
-                break;
-            case State.Moving:
-                animator.CrossFade("MovingAnimation", crossFadeDuration);
-                break;
-            case State.order:
-                animator.CrossFade("OrderAnimation", crossFadeDuration);
-                break;
-        }
     }
 }

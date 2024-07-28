@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 9052004165786697080}
   m_Layer: 0
   m_Name: "\uD3C9\uBBFC\uC5EC\uC790"
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -104,8 +104,10 @@ MonoBehaviour:
   id: 2
   price: 0
   Honor: 0
+  cookTime: 0
   currentState: 0
   parentTransform: {fileID: 0}
+  slots: []
 --- !u!70 &1660697840398385255
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -167,7 +169,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
+  m_Constraints: 0
 --- !u!114 &7593964695914897345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,15 +182,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91ebdf417ed328b409bfe457f629617c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetTag: 
-  speed: 2
+  speed: 1.5
   anim: {fileID: 9052004165786697080}
   waitingPosition: {x: -7, y: -3.5}
   checkInterval: 1
   orderedFood: {fileID: 0}
   guestManager: {fileID: 0}
-  exitTag: Exit
-  hasOrder: 0
+  coinPrefab: {fileID: 4539035297596919605, guid: 985c817548ff961459e50d2d5fc1fbe3, type: 3}
   currentState: 0
 --- !u!95 &9052004165786697080
 Animator:
@@ -200,7 +200,7 @@ Animator:
   m_GameObject: {fileID: 4845541428712892620}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 96b0661646e362f4aacd11692f8a182e, type: 2}
+  m_Controller: {fileID: 9100000, guid: 686a6ef3871f04147999f0c4c5ddc5f6, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

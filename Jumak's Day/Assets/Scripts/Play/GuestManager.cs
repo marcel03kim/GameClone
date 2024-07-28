@@ -6,7 +6,7 @@ public class GuestManager : MonoBehaviour
     public GameObject[] guestPrefabList;
     public GameObject[] foodPrefabList;
     public Transform guestSpawnPos;
-    public float speed = 1.0f;
+    public float speed = 1.5f;
     public float spawnInterval = 3.0f;
 
     public Transform[] cookingSlots;
@@ -16,9 +16,9 @@ public class GuestManager : MonoBehaviour
         InvokeRepeating("SpawnGuest", 0f, spawnInterval);
     }
 
+
     void SpawnGuest()
     {
-
         int randomIndex = Random.Range(0, guestPrefabList.Length);
         GameObject randomGuestPrefab = guestPrefabList[randomIndex];
         GameObject spawnedGuest = Instantiate(randomGuestPrefab, guestSpawnPos.position, Quaternion.identity);
@@ -37,39 +37,13 @@ public class GuestManager : MonoBehaviour
         GameObject orderedFood = Instantiate(selectedFoodPrefab, foodPosition, Quaternion.identity);
 
         guest.orderedFood = orderedFood;
+        orderedFood.transform.SetParent(guest.transform);
 
         Item item = orderedFood.GetComponent<Item>();
         item.currentState = Item.State.Ordered;
+
+        // parentTransform วาด็
+        item.parentTransform = guest.transform;
     }
 
-    public void CookFood()
-    {
-        foreach (Transform slot in cookingSlots)
-        {
-            if (slot.childCount == 0)
-            {
-                GameObject foodToCook = FindNextOrderedFood();
-                if (foodToCook != null)
-                {
-                    foodToCook.transform.SetParent(slot);
-                    foodToCook.transform.position = slot.position;
-                    Item item = foodToCook.GetComponent<Item>();
-                    item.currentState = Item.State.Cooked;
-                }
-            }
-        }
-    }
-
-    GameObject FindNextOrderedFood()
-    {
-        foreach (GameObject food in foodPrefabList)
-        {
-            Item item = food.GetComponent<Item>();
-            if (item.currentState == Item.State.Ordered)
-            {
-                return food;
-            }
-        }
-        return null;
-    }
 }
