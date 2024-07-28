@@ -8,7 +8,6 @@ public class GuestManager : MonoBehaviour
     public Transform guestSpawnPos;
     public float speed = 1.0f;
     public float spawnInterval = 3.0f;
-    public int counta;
 
     public Transform[] cookingSlots;
 
@@ -19,18 +18,14 @@ public class GuestManager : MonoBehaviour
 
     void SpawnGuest()
     {
-        if (counta > 1)
-            return;
 
         int randomIndex = Random.Range(0, guestPrefabList.Length);
         GameObject randomGuestPrefab = guestPrefabList[randomIndex];
         GameObject spawnedGuest = Instantiate(randomGuestPrefab, guestSpawnPos.position, Quaternion.identity);
 
         GuestMove guestMove = spawnedGuest.GetComponent<GuestMove>();
-        guestMove.targetTag = "Table";
         guestMove.speed = speed;
         guestMove.guestManager = this;
-        counta++;
     }
 
     public void OrderFood(GuestMove guest)
@@ -41,11 +36,9 @@ public class GuestManager : MonoBehaviour
         Vector2 foodPosition = new Vector2(guest.transform.position.x + 0.7f, guest.transform.position.y + 0.7f);
         GameObject orderedFood = Instantiate(selectedFoodPrefab, foodPosition, Quaternion.identity);
 
-        orderedFood.transform.SetParent(guest.transform);
         guest.orderedFood = orderedFood;
 
         Item item = orderedFood.GetComponent<Item>();
-        item.parentTransform = guest.transform;
         item.currentState = Item.State.Ordered;
     }
 

@@ -3,6 +3,8 @@ using UnityEngine;
 public class Item : MonoBehaviour
 {
     public int id;
+    public int price;
+    public int Honor;
     public enum State { Ordered, Cooked, Ate }
     public State currentState;
 

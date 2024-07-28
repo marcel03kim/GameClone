@@ -13,11 +13,17 @@ public class CameraMove : MonoBehaviour
 
     public void rightMove()
     {
-        Camera.transform.position += new Vector3(19, 0, 0);
+        if(Camera.transform.position.x <= 0)
+        {
+            Camera.transform.position += new Vector3(19, 0, 0);
+        }
     }
 
     public void leftMove()
     {
-        Camera.transform.position += new Vector3(-19, 0, 0);
+        if (Camera.transform.position.x >= 19)
+        {
+            Camera.transform.position += new Vector3(-19, 0, 0);
+        }
     }
 }

@@ -1,140 +1,179 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GuestMove : MonoBehaviour
 {
-    public string targetTag;
-    public float speed;
+    public float speed = 2.0f;
     public Animator anim;
     public Vector2 waitingPosition = new Vector2(-6, -3.5f);
     public float checkInterval = 1f;
     public GameObject orderedFood;
     public GuestManager guestManager;
-    public string exitTag = "Exit";
-    public bool hasOrder = false;
+    public GameObject coinPrefab;
 
-    private Transform target;
-    private Table targetTable;
-    public float crossFadeDuration = 0.2f; // ≈©∑ŒΩ∫∆‰¿ÃµÂ ¡ˆº” Ω√∞£
+    public Transform target;
+    private Rigidbody2D rb;
+    public float crossFadeDuration = 0.2f;
 
     public enum State
     {
-        Walking,
-        Sitting,
-        Ordering,
-        eating,
-        drinking,
-        idle,
-        standing,
-        Waiting
+        Idle = 0,
+        Move = 1,
+        Order = 2,
+        Sit = 3,
+        Eat = 4,
+        Exit = 5,
+        Wait = 6
     }
 
-    public State currentState = State.Walking;
+    public State currentState = State.Move;
 
     void Start()
     {
         anim = GetComponent<Animator>();
-        currentState = State.idle;
+        rb = GetComponent<Rigidbody2D>();  // Rigidbody2D Ïª¥Ìè¨ÎÑåÌä∏ Í∞ÄÏ†∏Ïò§Í∏∞
+        currentState = State.Move;
         FindNewTarget();
+        UpdateAnimator();
     }
+
 
     void Update()
     {
         switch (currentState)
         {
-            case State.Walking:
-                if (target != null)
-                {
-                    transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
-                    anim.CrossFade("WalkingAnimation", crossFadeDuration);
-                }
+            case State.Move:
+                Move();
                 break;
-            case State.Sitting:
-                anim.CrossFade("SittingAnimation", crossFadeDuration);
-                StartCoroutine(WaitForAnimationToEnd(2, 3, State.Ordering));
+            case State.Idle:
+                speed = 0;
                 break;
-            case State.idle:
-                anim.CrossFade("IdleAnimation", crossFadeDuration);
+            case State.Sit:
                 break;
-            case State.drinking:
-                anim.CrossFade("DrinkingAnimation", crossFadeDuration);
+            case State.Eat:
+                Eat();
                 break;
-            case State.eating:
-                anim.CrossFade("EatingAnimation", crossFadeDuration);
+            case State.Order:
+                Order();
                 break;
-            case State.standing:
-                anim.CrossFade("StandingAnimation", crossFadeDuration);
-                StartCoroutine(WaitForAnimationToEnd(6, 1, State.Walking));
+            case State.Wait:
+                Wait();
                 break;
-            case State.Ordering:
-                if (!hasOrder)
-                {
-                    anim.CrossFade("OrderingAnimation", crossFadeDuration);
-                    if (guestManager != null)
-                    {
-                        guestManager.OrderFood(this);
-                        hasOrder = true;
-                    }
-                    else
-                    {
-                        Debug.LogError("guestManager is not assigned!");
-                    }
-                }
-                break;
-            case State.Waiting:
-                anim.CrossFade("WaitingAnimation", crossFadeDuration);
+            case State.Exit:
+                Exit();
                 break;
         }
 
-        if (hasOrder && orderedFood != null && orderedFood.transform.parent == transform)
+        if (orderedFood != null && orderedFood.transform.parent == transform)
         {
             StartCoroutine(ConsumeOrderedFood());
+        }
+
+        UpdateAnimator();
+    }
+
+    void FixedUpdate()
+    {
+        if (currentState == State.Move)
+        {
+            Move();
+        }
+    }
+
+
+    void Move()
+    {
+        if (target != null)
+        {
+            Vector2 newPosition = target.transform.position - rb.transform.position;
+            transform.Translate(newPosition * Time.fixedDeltaTime);
+            //rb.velocity = newPosition;
+            //Vector2 newPosition = Vector2.MoveTowards(rb.position, target.position, speed * Time.fixedDeltaTime);
+            //rb.MovePosition(newPosition);
+
+            Debug.Log("Î¨¥Î∏å Ìò∏Ï∂ú");
+        }
+    }
+
+
+    void Order()
+    {
+        if (guestManager != null)
+        {
+            guestManager.OrderFood(this);
+            currentState = State.Sit;
+            Debug.Log("Order called"); // ÎîîÎ≤ÑÍ∑∏ Î°úÍ∑∏ Ï∂îÍ∞Ä
+        }
+        else
+        {
+            Debug.LogError("guestManager is not assigned!");
+        }
+    }
+
+    void Wait()
+    {
+        transform.position = Vector2.MoveTowards(transform.position, waitingPosition, speed * Time.deltaTime);
+        if (Vector2.Distance(transform.position, waitingPosition) < 0.01f)
+        {
+            speed = 0f;
+            FindNewTarget();
+        }
+    }
+
+    void Eat()
+    {
+        StartCoroutine(ConsumeOrderedFood());
+    }
+
+    void Exit()
+    {
+        GameObject exitObject = GameObject.FindGameObjectWithTag("Exit");
+        if (exitObject != null)
+        {
+            target = exitObject.transform;
+            transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == targetTag && currentState == State.Walking)
+        Debug.Log("OnTriggerEnter2D called with: " + collision.gameObject.tag); // ÎîîÎ≤ÑÍ∑∏ Î°úÍ∑∏ Ï∂îÍ∞Ä
+
+        if (collision.gameObject.tag == "Table" && currentState == State.Move)
         {
             Table table = collision.gameObject.GetComponent<Table>();
-            if (table != null && table.isEmpty)
+            if (table != null && table.state == Table.TableState.Empty)
             {
+                Debug.Log("Table found and empty"); // ÎîîÎ≤ÑÍ∑∏ Î°úÍ∑∏ Ï∂îÍ∞Ä
+
                 transform.position = collision.transform.position;
-
-                table.isEmpty = false;
-
+                table.state = Table.TableState.Full;
                 transform.SetParent(collision.transform);
-                anim.CrossFade("SittingAnimation", crossFadeDuration);
-                currentState = State.Sitting;
+                currentState = State.Order;
             }
             else
             {
-                FindNewTarget();
+                currentState = State.Wait;
             }
         }
 
-        if (currentState == State.Ordering && collision.gameObject.tag == "¡÷∏")
+        if (currentState == State.Order && collision.gameObject.tag == "Ï£ºÎ™®")
         {
+            Debug.Log("Ï£ºÎ™® found and in Order state"); // ÎîîÎ≤ÑÍ∑∏ Î°úÍ∑∏ Ï∂îÍ∞Ä
+
             Destroy(orderedFood);
-            hasOrder = true;
-            if (orderedFood.tag == "drink")
-            {
-                currentState = State.drinking;
-                anim.CrossFade("DrinkingAnimation", crossFadeDuration);
-            }
-            else if (orderedFood.tag == "food")
-            {
-                currentState = State.eating;
-                anim.CrossFade("EatingAnimation", crossFadeDuration);
-            }
-            StartCoroutine(ConsumeOrderedFood());
+            currentState = State.Eat;
         }
 
-        if (currentState == State.Walking && collision.gameObject.tag == exitTag)
+        if (currentState == State.Exit && collision.gameObject.tag == "Exit")
         {
+            Debug.Log("Exit found and in Exit state"); // ÎîîÎ≤ÑÍ∑∏ Î°úÍ∑∏ Ï∂îÍ∞Ä
+
             Destroy(gameObject);
         }
+
+        UpdateAnimator();
     }
 
     private IEnumerator ConsumeOrderedFood()
@@ -142,38 +181,52 @@ public class GuestMove : MonoBehaviour
         yield return new WaitForSeconds(3f);
         if (orderedFood != null && orderedFood.transform.parent == transform)
         {
+            currentState = State.Exit;
+            orderedFood.GetComponent<Item>().price = coinPrefab.GetComponent<Coin>().Cpoint;
+            orderedFood.GetComponent<Item>().Honor = coinPrefab.GetComponent<Coin>().Hpoint;
+            Instantiate(coinPrefab, transform.position, Quaternion.identity);
             Destroy(orderedFood);
-            hasOrder = false;
-            currentState = State.standing;
-            anim.CrossFade("StandingAnimation", crossFadeDuration);
-            // ƒ⁄¿Œ «¡∏Æ∆’¿ª ª˝º∫«œ∑¡∏È √ﬂ∞° ∑Œ¡˜¿ª ø©±‚ø° ≥÷¿ª ºˆ ¿÷Ω¿¥œ¥Ÿ.
         }
+        UpdateAnimator();
     }
 
     private void FindNewTarget()
     {
-        GameObject[] tables = GameObject.FindGameObjectsWithTag(targetTag);
+        GameObject[] tables = GameObject.FindGameObjectsWithTag("Table");
+        float closestDistance = Mathf.Infinity;
+        GameObject closestTable = null;
+
         foreach (GameObject tableObject in tables)
         {
             Table table = tableObject.GetComponent<Table>();
-            if (table != null && table.isEmpty)
+            if (table != null && table.state == Table.TableState.Empty)
             {
-                target = tableObject.transform;
-                break;
+                float distance = Vector2.Distance(transform.position, tableObject.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestTable = tableObject;
+                }
             }
         }
 
-        if (target == null)
+        if (closestTable != null)
         {
-            target = new GameObject("RandomTarget").transform;
-            target.position = waitingPosition;
+            target = closestTable.transform;
+            currentState = State.Move;
+            Debug.Log("New target found: " + target.position); // ÎîîÎ≤ÑÍ∑∏ Î°úÍ∑∏ Ï∂îÍ∞Ä
         }
+        else
+        {
+            target.position = waitingPosition;
+            currentState = State.Wait;
+        }
+
+        UpdateAnimator();
     }
 
-    private IEnumerator WaitForAnimationToEnd(float waitTime, float fadeTime, State newState)
+    private void UpdateAnimator()
     {
-        yield return new WaitForSeconds(waitTime);
-        anim.CrossFade("IdleAnimation", fadeTime);
-        currentState = newState;
+        anim.SetInteger("State", (int)currentState);
     }
 }

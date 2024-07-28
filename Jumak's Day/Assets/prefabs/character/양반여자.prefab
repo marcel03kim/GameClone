@@ -103,6 +103,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 6
+  price: 0
+  Honor: 0
   currentState: 0
   parentTransform: {fileID: 0}
 --- !u!114 &1385089254488556079
@@ -117,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91ebdf417ed328b409bfe457f629617c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetTag: Table
+  targetTag: 
   speed: 2
   anim: {fileID: 6663665200359211920}
   waitingPosition: {x: -7, y: -3.5}
@@ -126,7 +128,6 @@ MonoBehaviour:
   guestManager: {fileID: 0}
   exitTag: Exit
   hasOrder: 0
-  crossFadeDuration: 0.2
   currentState: 0
 --- !u!95 &6663665200359211920
 Animator:
@@ -197,7 +198,6 @@ MonoBehaviour:
   guestManager: {fileID: 0}
   exitTag: Exit
   hasOrder: 0
-  crossFadeDuration: 0.2
   currentState: 0
 --- !u!70 &5691636192546835770
 CapsuleCollider2D:

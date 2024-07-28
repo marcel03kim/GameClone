@@ -83,12 +83,12 @@ public class JumoMove : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         GuestMove guestMove = collision.GetComponent<GuestMove>();
-        if (guestMove != null && guestMove.currentState == GuestMove.State.Ordering)
+        if (guestMove != null && guestMove.currentState == GuestMove.State.Order)
         {
             currentState = State.order;
             canMove = false; // order 상태일 때는 이동할 수 없도록 설정
             UpdateAnimator(); // 애니메이션 트리거 업데이트
-            guestMove.currentState = GuestMove.State.Ordering;
+            guestMove.currentState = GuestMove.State.Sit;
             StartCoroutine(WaitForOrderState());
         }
     }
